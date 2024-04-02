@@ -24,7 +24,7 @@ class BuyOrder:
         self.order_type = order_type
         self.is_done = is_done
 
-    def get_info(self):
+    def get_json_info(self):
         return {
             'order_id': self.order_id,
             'commodity_name': self.commodity_name,
@@ -53,7 +53,7 @@ class SellOrder:
         self.order_type = order_type
         self.is_done = is_done
 
-    def get_info(self):
+    def get_json_info(self):
         return {
             'order_id': self.order_id,
             'commodity_name': self.commodity_name,
