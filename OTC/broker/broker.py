@@ -111,14 +111,14 @@ class Broker:
         ret = []
         for commodity in self.buy_orders:
             for order in self.buy_orders[commodity]:
-                ret.append(order.get_info())
+                ret.append(order.get_json_info())
         return ret
 
     def get_sell_orders(self):
         ret = []
         for commodity in self.sell_orders:
             for order in self.sell_orders[commodity]:
-                ret.append(order.get_info())
+                ret.append(order.get_json_info())
         return ret
 
     def get_fragment_transactions(self):
