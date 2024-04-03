@@ -11,8 +11,8 @@ class BuyOrder:
     def __init__(self,
                  order_id: int,
                  commodity_name: str,
-                 buy_vol: float,
-                 price: int,  # market order 设置为-1
+                 buy_vol: int,
+                 price: float,  # market order 设置为-1
                  buyer_id: int,
                  order_type: str,
                  is_done: bool = False):
@@ -40,8 +40,8 @@ class SellOrder:
     def __init__(self,
                  order_id: int,
                  commodity_name: str,
-                 sell_vol: float,
-                 price: int,  # market order 设置为-1
+                 sell_vol: int,
+                 price: float,  # market order 设置为-1
                  seller_id: int,
                  order_type: str,
                  is_done: bool = False):

@@ -4,8 +4,8 @@ from broker.broker import Broker, BuyOrder, SellOrder, FragmentTransaction
 def add_buy_order(broker: Broker,
                   buyer_id: int,
                   commodity_name: str,
-                  buy_vol: float,
-                  price: int,
+                  buy_vol: int,
+                  price: float,
                   order_type: str):
     order_id = broker.buy_order_id.get(commodity_name, 1)
     broker.buy_order_id[commodity_name] = broker.buy_order_id.get(commodity_name, 1) + 1
@@ -23,8 +23,8 @@ def add_buy_order(broker: Broker,
 def add_sell_order(broker: Broker,
                    seller_id: int,
                    commodity_name: str,
-                   sell_vol: float,
-                   price: int,
+                   sell_vol: int,
+                   price: float,
                    order_type: str):
     order_id = broker.sell_order_id.get(commodity_name, 1)
     broker.sell_order_id[commodity_name] = broker.sell_order_id.get(commodity_name, 1) + 1
