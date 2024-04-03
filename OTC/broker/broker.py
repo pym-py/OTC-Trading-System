@@ -12,7 +12,7 @@ class BuyOrder:
                  order_id: int,
                  commodity_name: str,
                  buy_vol: float,
-                 price: float,  # market order 设置为-1
+                 price: int,  # market order 设置为-1
                  buyer_id: int,
                  order_type: str,
                  is_done: bool = False):
@@ -41,7 +41,7 @@ class SellOrder:
                  order_id: int,
                  commodity_name: str,
                  sell_vol: float,
-                 price: float,  # market order 设置为-1
+                 price: int,  # market order 设置为-1
                  seller_id: int,
                  order_type: str,
                  is_done: bool = False):
@@ -66,7 +66,7 @@ class SellOrder:
 
 
 class FragmentTransaction:
-    def __init__(self, commodity_name,sell_order_id, buy_order_id, qty, sold_price):
+    def __init__(self, commodity_name, sell_order_id, buy_order_id, qty, sold_price):
         self.commodity_name = commodity_name
         self.sell_order_id = sell_order_id
         self.buy_order_id = buy_order_id
