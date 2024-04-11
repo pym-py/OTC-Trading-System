@@ -57,9 +57,9 @@ class SellOrder:
         return {
             'order_id': self.order_id,
             'commodity_name': self.commodity_name,
-            'buy_vol': self.sell_vol,
+            'sell_vol': self.sell_vol,
             'price': self.price,
-            'buyer_id': self.seller_id,
+            'seller_id': self.seller_id,
             'order_type': self.order_type,
             'is_done': self.is_done
         }
@@ -110,22 +110,26 @@ class Broker:
     def get_buy_orders(self):
         ret = []
         for commodity in self.buy_orders:
-            for order in self.buy_orders[commodity]:
+            for order_id, order in self.buy_orders[commodity].items():
+                order:BuyOrder
                 ret.append(order.get_json_info())
         return ret
 
     def get_sell_orders(self):
         ret = []
         for commodity in self.sell_orders:
-            for order in self.sell_orders[commodity]:
+            for order_id, order in self.sell_orders[commodity].items():
+                order:SellOrder
                 ret.append(order.get_json_info())
         return ret
 
     def get_fragment_transactions(self):
+
         ret = []
         for commodity in self.fragment_trans:
-            for order in self.fragment_trans[commodity]:
-                ret.append(order.get_json_info())
+            for tran in self.fragment_trans[commodity]:
+                tran:FragmentTransaction
+                ret.append(tran.get_json_info())
         return ret
 
     # def add_buy_order(self,
