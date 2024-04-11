@@ -57,9 +57,9 @@ class SellOrder:
         return {
             'order_id': self.order_id,
             'commodity_name': self.commodity_name,
-            'buy_vol': self.sell_vol,
+            'sell_vol': self.sell_vol,
             'price': self.price,
-            'buyer_id': self.seller_id,
+            'seller_id': self.seller_id,
             'order_type': self.order_type,
             'is_done': self.is_done
         }

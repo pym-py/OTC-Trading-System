@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from broker.views import test, get_buy_orders, add_buy_order, get_sell_orders, add_sell_order, get_fragment_transactions
+from user.views import get_order_info_by_user_id
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('get_fragment_transactions/', get_fragment_transactions),
     path('add_buy_order/', add_buy_order),
     path('add_sell_order/', add_sell_order),
+    path('get_order_info_by_user_id/', get_order_info_by_user_id)
 ]
