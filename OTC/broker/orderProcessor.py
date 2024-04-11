@@ -189,9 +189,14 @@ def deal_new_sell_market_order(broker, order:SellOrder):
 
             if top_buy_order.buy_vol != 0:
                 heap_add_buy_order(heap_buy_orders, top_buy_order)
+            else:
+                top_buy_order.is_done = True
+
+            
+            order.sell_vol = 0
+            order.is_done = True
 
             broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
-            order.sell_vol = 0
             broker.sell_orders[order.commodity_name][order.order_id] = order
             tran = FragmentTransaction(order.commodity_name,order.seller_id,top_buy_order.buyer_id,quan, last_price)
             broker.add_fragment_transaction(tran)
@@ -204,6 +209,7 @@ def deal_new_sell_market_order(broker, order:SellOrder):
             quan = top_buy_order.buy_vol
             order.buy_vol -= top_buy_order.buy_vol
             top_buy_order.buy_vol = 0
+            top_buy_order.is_done = True
 
             if top_buy_order.order_type != 'market':
                 last_price = top_buy_order.price
@@ -252,9 +258,14 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                 order.price = 0
                 order.is_done = True
 
+                if top_sell_order.sell_vol !=0:
+                    heap_add_sell_order(heap_sell_orders,top_sell_order)
+                else:
+                    top_sell_order.is_done = True
+
                 broker.buy_orders[order.commodity_name][order.order_id] = order
                 broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
-                heap_add_sell_order(heap_sell_orders,top_sell_order)
+                
 
                 tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
                                            quan,
@@ -271,6 +282,15 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
 
                 last_price = order.price
 
+                if order.buy_vol == 0:
+                    order.is_done = True
+
+
+                broker.buy_orders[order.commodity_name][order.order_id] = order
+                broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
+                    
+                
+                
                 tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
                                            quan,
                                            last_price)
@@ -358,10 +378,17 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 quan = order.sell_vol
                 top_buy_order.buy_vol -= order.sell_vol
                 order.price = 0
+                order.is_done = True
+
+                if top_buy_order.buy_vol != 0:
+                    heap_add_buy_order(heap_buy_orders, top_buy_order)
+                else:
+                    top_buy_order.is_done = True
+
 
                 broker.sell_orders[order.commodity_name][order.order_id] = order
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
-                heap_add_buy_order(heap_buy_orders, top_buy_order)
+                
                 top_buy_order:BuyOrder
                 tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
                                            last_price)
@@ -371,10 +398,15 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 quan = top_buy_order.buy_vol
                 order.sell_vol -= top_buy_order.buy_vol
                 top_buy_order.buy_vol = 0
+                top_buy_order.is_done = True
                 broker.sell_orders[order.commodity_name][order.order_id] = order
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
 
                 last_price = order.price
+
+                if order.sell_vol == 0:
+                    order.is_done = True
+                    
 
                 tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
                                            last_price)
@@ -382,18 +414,24 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 continue
                 # 移除已完全成交的买单，继续处理剩余卖单量
                 # 这里也要写入order数据库，更新两个委托单数据库
-        elif order.order_type == 'limit' and order.price <= top_buy_order.price:
+        elif top_buy_order.order_type == 'limit' and order.price <= top_buy_order.price:
             # 限价卖单逻辑
             if order.sell_vol <= top_buy_order.buy_vol:
-                # 完成交易，更新last_price
-                last_price = (order.price + top_buy_order) / 2
                 quan = order.sell_vol
+                order.sell_vol = 0
+                order.is_done = True
+                last_price = (order.price + top_buy_order.price) / 2
+                
                 top_buy_order.buy_vol -= order.sell_vol
-                order.price = 0
+                
+                if top_buy_order.buy_vol != 0:
+                    heap_add_buy_order(heap_buy_orders,top_buy_order)
+                else:
+                    top_buy_order.is_done = True
 
                 broker.sell_orders[order.commodity_name][order.order_id] = order
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
-                heap_add_buy_order(heap_buy_orders, top_buy_order)
+                
 
                 tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
                                            last_price)
@@ -403,10 +441,11 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 quan = top_buy_order.buy_vol
                 order.sell_vol -= top_buy_order.buy_vol
                 top_buy_order.buy_vol = 0
+                top_buy_order.is_done = True
                 broker.sell_orders[order.commodity_name][order.order_id] = order
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
 
-                last_price = (order.price + top_buy_order) / 2
+                last_price = (order.price + top_buy_order.price) / 2
 
                 tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
                                            last_price)
@@ -416,6 +455,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
             # 如果卖单是限价单，但价格不满足条件，结束循环
 
             heap_add_sell_order(heap_sell_orders, order)
+            heap_add_buy_order(heap_buy_orders,top_buy_order)
             break
 
 
