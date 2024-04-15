@@ -207,7 +207,7 @@ def deal_new_sell_market_order(broker, order:SellOrder):
             break
         else:
             quan = top_buy_order.buy_vol
-            order.buy_vol -= top_buy_order.buy_vol
+            order.sell_vol -= top_buy_order.buy_vol
             top_buy_order.buy_vol = 0
             top_buy_order.is_done = True
 
