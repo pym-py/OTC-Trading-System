@@ -255,7 +255,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                 
                 last_price = order.price
                 top_sell_order.sell_vol -= order.buy_vol
-                order.price = 0
+                order.buy_vol = 0
                 order.is_done = True
 
                 if top_sell_order.sell_vol !=0:
@@ -306,7 +306,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                 order.buy_vol = 0
                 order.is_done = True
                 last_price = (order.price + top_sell_order.price) / 2
-                top_sell_order.sell_vol -= order.buy_vol
+                top_sell_order.sell_vol -= quan
                 
                 if top_sell_order.sell_vol != 0:
                     heap_add_sell_order(heap_sell_orders, top_sell_order)
@@ -377,7 +377,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 last_price = order.price
                 quan = order.sell_vol
                 top_buy_order.buy_vol -= order.sell_vol
-                order.price = 0
+                order.sell_vol = 0
                 order.is_done = True
 
                 if top_buy_order.buy_vol != 0:
@@ -422,7 +422,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 order.is_done = True
                 last_price = (order.price + top_buy_order.price) / 2
                 
-                top_buy_order.buy_vol -= order.sell_vol
+                top_buy_order.buy_vol -= quan
                 
                 if top_buy_order.buy_vol != 0:
                     heap_add_buy_order(heap_buy_orders,top_buy_order)
