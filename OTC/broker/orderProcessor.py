@@ -125,7 +125,7 @@ def deal_new_buy_market_order(broker, order:BuyOrder):
             order.buy_vol = 0
             order.is_done = True
 
-            tran = FragmentTransaction(order.commodity_name,top_sell_order.seller_id,order.buyer_id,quan, last_price)
+            tran = FragmentTransaction(order.commodity_name,top_sell_order.order_id,order.order_id,quan, last_price)
             broker.add_fragment_transaction(tran)
             broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
             
@@ -145,7 +145,7 @@ def deal_new_buy_market_order(broker, order:BuyOrder):
             broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
             broker.buy_orders[order.commodity_name][order.order_id] = order
 
-            tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id, quan,
+            tran = FragmentTransaction(order.commodity_name, top_sell_order.order_id, order.order_id, quan,
                                        last_price)
             broker.add_fragment_transaction(tran)
             # 移除已完全成交的卖单，继续处理剩余买单量
@@ -198,7 +198,7 @@ def deal_new_sell_market_order(broker, order:SellOrder):
 
             broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
             broker.sell_orders[order.commodity_name][order.order_id] = order
-            tran = FragmentTransaction(order.commodity_name,order.seller_id,top_buy_order.buyer_id,quan, last_price)
+            tran = FragmentTransaction(order.commodity_name,order.order_id,top_buy_order.order_id,quan, last_price)
             broker.add_fragment_transaction(tran)
 
 
@@ -217,7 +217,7 @@ def deal_new_sell_market_order(broker, order:SellOrder):
             broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
             broker.sell_orders[order.commodity_name][order.order_id] = order
 
-            tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
+            tran = FragmentTransaction(order.commodity_name, order.order_id, top_buy_order.order_id, quan,
                                        last_price)
             broker.add_fragment_transaction(tran)
             # 移除已完全成交的卖单，继续处理剩余买单量
@@ -267,7 +267,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                 broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
                 
 
-                tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
+                tran = FragmentTransaction(order.commodity_name, top_sell_order.order_id, order.order_id,
                                            quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
@@ -291,7 +291,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                     
                 
                 
-                tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
+                tran = FragmentTransaction(order.commodity_name, top_sell_order.order_id, order.order_id,
                                            quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
@@ -317,7 +317,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
                 broker.sell_orders[top_sell_order.commodity_name][top_sell_order.order_id] = top_sell_order
                 
 
-                tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
+                tran = FragmentTransaction(order.commodity_name, top_sell_order.order_id, order.order_id,
                                            quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
@@ -332,7 +332,7 @@ def deal_new_buy_limit_order(broker, order:BuyOrder):
 
                 last_price = (order.price + top_sell_order.price) / 2
 
-                tran = FragmentTransaction(order.commodity_name, top_sell_order.seller_id, order.buyer_id,
+                tran = FragmentTransaction(order.commodity_name, top_sell_order.order_id, order.order_id,
                                            quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
@@ -390,7 +390,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
                 
                 top_buy_order:BuyOrder
-                tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
+                tran = FragmentTransaction(order.commodity_name, order.order_id, top_buy_order.order_id, quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
                 break
@@ -408,7 +408,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                     order.is_done = True
                     
 
-                tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
+                tran = FragmentTransaction(order.commodity_name, order.order_id, top_buy_order.order_id, quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
                 continue
@@ -433,7 +433,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
                 broker.buy_orders[top_buy_order.commodity_name][top_buy_order.order_id] = top_buy_order
                 
 
-                tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
+                tran = FragmentTransaction(order.commodity_name, order.order_id, top_buy_order.order_id, quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
                 break
@@ -447,7 +447,7 @@ def deal_new_sell_limit_order(broker, order:SellOrder):
 
                 last_price = (order.price + top_buy_order.price) / 2
 
-                tran = FragmentTransaction(order.commodity_name, order.seller_id, top_buy_order.buyer_id, quan,
+                tran = FragmentTransaction(order.commodity_name, order.order_id, top_buy_order.order_id, quan,
                                            last_price)
                 broker.add_fragment_transaction(tran)
                 continue
