@@ -8,8 +8,21 @@ user_for_test = {
         'id': 1,
         'password': '123456',
         'type': 'company'
+    },
+    'test_user2': {
+        'id': 2,
+        'password': '123456',
+        'type': 'company'
     }
 }
+
+
+def get_username_by_id(user_id):
+    for username in user_for_test:
+        if user_for_test[username]['id'] == user_id:
+            user_name = username
+            break
+    return user_name
 
 
 def login(request):
@@ -37,6 +50,7 @@ def login(request):
 def get_order_info_by_user_id(request):
     user_info: dict = json.loads(request.body)
     user_id = user_info['userid']
+    user_name = get_username_by_id(user_id)
     ret = {
         'msg': 'ok',
         'data': []
@@ -46,7 +60,7 @@ def get_order_info_by_user_id(request):
     for order in all_sell_orders:
         if order['seller_id'] == user_id:
             ret['data'].append({
-                # "stockerId": int,
+                "stockerName": user_name,
                 "orderId": order['order_id'],
                 "orderDst": 'sell',
                 "orderType": order['order_type'],
@@ -57,7 +71,7 @@ def get_order_info_by_user_id(request):
     for order in all_buy_orders:
         if order['buyer_id'] == user_id:
             ret['data'].append({
-                # "stockerId": int,
+                "stockerName": user_name,
                 "orderId": order['order_id'],
                 "orderDst": 'buy',
                 "orderType": order['order_type'],

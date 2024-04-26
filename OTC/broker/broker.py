@@ -23,16 +23,18 @@ class BuyOrder:
         self.buyer_id = buyer_id
         self.order_type = order_type
         self.is_done = is_done
+        self.origin_vol = buy_vol
 
     def get_json_info(self):
         return {
             'order_id': self.order_id,
             'commodity_name': self.commodity_name,
             'buy_vol': self.buy_vol,
-            'price': self.price,
+            'price': self.price if self.order_type != 'market' else 0,
             'buyer_id': self.buyer_id,
             'order_type': self.order_type,
-            'is_done': self.is_done
+            'is_done': self.is_done,
+            'origin_vol': self.origin_vol
         }
 
 
@@ -48,10 +50,11 @@ class SellOrder:
         self.order_id = order_id
         self.commodity_name = commodity_name
         self.sell_vol = sell_vol
-        self.price = price
+        self.price = price if order_type != 'market' else 0
         self.seller_id = seller_id
         self.order_type = order_type
         self.is_done = is_done
+        self.origin_vol = sell_vol
 
     def get_json_info(self):
         return {
@@ -61,7 +64,8 @@ class SellOrder:
             'price': self.price,
             'seller_id': self.seller_id,
             'order_type': self.order_type,
-            'is_done': self.is_done
+            'is_done': self.is_done,
+            'origin_vol': self.origin_vol
         }
 
 
@@ -76,6 +80,7 @@ class FragmentTransaction:
 
     def get_json_info(self):
         return {
+            'commodity_name': self.commodity_name,
             'sell_id': self.sell_order_id,
             'buy_id': self.buy_order_id,
             'qty': self.qty,
@@ -128,50 +133,126 @@ class Broker:
                 ret.append(order.get_json_info())
         return ret
 
-    # def add_buy_order(self,
-    #                   buyer_id: int,
-    #                   commodity_name: str,
-    #                   buy_vol: float,
-    #                   price: float,
-    #                   order_type: str):
-    #     self.buy_orders.append(buy_order)
-    #     # TODO 处理新的order
-    #
-    # def add_sell_order(self,
-    #                    seller_id: int,
-    #                    commodity_name: str,
-    #                    sell_vol: float,
-    #                    price: float,
-    #                    order_type: str):
-    #     order_id = self.sell_order_id
-    #     self.sell_order_id += 1
-    #     sell_order = SellOrder(order_id, commodity_name, sell_vol, price, seller_id, order_type)
-    #     self.sell_orders.append(sell_order)
-    #     # TODO 处理新的order
-        # vol = sell_order.sell_vol
-        # for order in self.buy_orders:
-        #     if order.order_type == 'limit':
-        #         buy_id = order.order_id
-        #         sell_id = sell_order.order_id
-        #         sold_price = order.price
-        #         if order.buy_vol >= vol:
-        #             qty = vol
-        #             order.buy_vol -= vol
-        #             sell_order.sell_vol = 0
-        #             sell_order.is_done = True
-        #         else:
-        #             qty = order.buy_vol
-        #             vol -= order.buy_vol
-        #             order.buy_vol = 0
-        #             order.is_done = True
-        #         fragment_transaction = FragmentTransaction(sell_id, buy_id, qty, sold_price)
-        #         self.add_fragment_transaction(fragment_transaction)
-        #         break
+    def get_name_by_id(self, id):
+        from user.views import user_for_test
+        for user in user_for_test:
+            if user_for_test[user]['id'] == id:
+                return user
 
+    def get_id_by_buy_order_id(self, order_id):
+        for commodity_name in self.buy_orders:
+            for _, order in self.buy_orders[commodity_name].items():
+                if order.order_id == order_id:
+                    return order.buyer_id
 
+    def get_id_by_sell_order_id(self, order_id):
+        for commodity_name in self.sell_orders:
+            for _, order in self.sell_orders[commodity_name].items():
+                if order.order_id == order_id:
+                    return order.seller_id
+
+    def get_all_fragment_transactions(self):
+        ret = []
+        for commodity_name in self.fragment_trans:
+            for tf in self.fragment_trans[commodity_name]:
+                info = tf.get_json_info()
+                buyer_id = self.get_id_by_buy_order_id(info['buy_id'])
+                seller_id = self.get_id_by_sell_order_id(info['sell_id'])
+                ret.append({
+                    "buyOrderId": info['buy_id'],
+                    "buyerName": self.get_name_by_id(buyer_id),
+                    "buyerId": buyer_id,
+                    "sellOrderId": info['sell_id'],
+                    "sellerName": self.get_name_by_id(seller_id),
+                    "sellerId": seller_id,
+                    "qty": info['qty'],
+                    "price": info['sold_price'],
+                    "productName": info['commodity_name'],
+                    "time": info['sold_time'],
+                })
+        return ret
+
+    def get_fragment_transactions_by_id(self, id):
+        sell_orders = []
+        buy_orders = []
+        for commodity_name in self.buy_orders:
+            for _, order in self.buy_orders[commodity_name].items():
+                if order.buyer_id == id:
+                    buy_orders.append(order)
+        for commodity_name in self.sell_orders:
+            for _, order in self.sell_orders[commodity_name].items():
+                if order.seller_id == id:
+                    sell_orders.append(order)
+        if len(sell_orders) > 0:
+            print(sell_orders[0].get_json_info())
+        if len(buy_orders) > 0:
+            print(buy_orders[0].get_json_info())
+        tfs = []
+        for commodity_name in self.fragment_trans:
+            for tf in self.fragment_trans[commodity_name]:
+                for order in sell_orders:
+                    if tf.sell_order_id == order.order_id:
+                        tfs.append(tf)
+                for order in buy_orders:
+                    if tf.buy_order_id == order.order_id:
+                        tfs.append(tf)
+        print(len(tfs))
+        ret = []
+        for tf in tfs:
+            info = tf.get_json_info()
+            buyer_id = self.get_id_by_buy_order_id(info['buy_id'])
+            seller_id = self.get_id_by_sell_order_id(info['sell_id'])
+            ret.append({
+                "buyOrderId": info['buy_id'],
+                "buyerName": self.get_name_by_id(buyer_id),
+                "buyerId": buyer_id,
+                "sellOrderId": info['sell_id'],
+                "sellerName": self.get_name_by_id(seller_id),
+                "sellerId": seller_id,
+                "qty": info['qty'],
+                "price": info['sold_price'],
+                "productName": info['commodity_name'],
+                "time": info['sold_time'],
+            })
+        return ret
+
+    def get_all_orders(self):
+        ret = []
+        for commodity in self.buy_orders:
+            for _, order in self.buy_orders[commodity].items():
+                ret.append({
+                    "company_id": order.buyer_id,
+                    "orderId": order.order_id,
+                    "orderDst": 'buy',
+                    "orderType": order.order_type,
+                    "qty": order.buy_vol,
+                    "price": order.price ,
+                    "productName": order.commodity_name,
+                    "orderIsDone": order.is_done,
+                    "originVol": order.origin_vol
+                })
+        for commodity in self.sell_orders:
+            for _, order in self.sell_orders[commodity].items():
+                ret.append({
+                    "company_id": order.seller_id,
+                    "orderId": order.order_id,
+                    "orderDst": 'sell',
+                    "orderType": order.order_type,
+                    "qty": order.sell_vol,
+                    "price": order.price,
+                    "productName": order.commodity_name,
+                    "orderIsDone": order.is_done,
+                    "originVol": order.origin_vol
+                })
+        return ret
 
 
 bb = Broker('gold')
-bb.company_list.append({'id': 1, 'name': "A"})
-bb.company_list.append(({'id': 2, 'name': 'B'}))
-
+# bb.company_list.append({'id': 1, 'name': "A"})
+# bb.company_list.append(({'id': 2, 'name': 'B'}))
+# bb.buy_orders['gold'].append(BuyOrder(1, 'gold', 10, 100, 1, 'market'))
+# bb.buy_orders['gold'].append(BuyOrder(2, 'gold', 20, 200, 1, 'limit'))
+# bb.sell_orders['gold'].append(SellOrder(1, 'gold', 33, 100, 1, 'limit'))
+# bb.sell_orders['gold'].append(SellOrder(2, 'gold', 35, 300, 2, 'market'))
+# bb.sell_orders['oil'].append(SellOrder(1, 'oil', 100, 1000, 2, 'limit'))
+# bb.add_fragment_transaction(FragmentTransaction('gold'

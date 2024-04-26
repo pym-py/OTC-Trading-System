@@ -16,8 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from broker.views import test, get_buy_orders, add_buy_order, get_sell_orders, add_sell_order, get_fragment_transactions
-from user.views import get_order_info_by_user_id
+from broker.views import (test,
+                          get_buy_orders,
+                          add_buy_order,
+                          get_sell_orders,
+                          add_sell_order,
+                          get_fragment_transactions,
+                          make_order,
+                          get_finished_trade_list,
+                          get_stocker_order_hist,
+                          get_pending_orders,
+                          )
+from user.views import get_order_info_by_user_id, login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +37,12 @@ urlpatterns = [
     path('get_fragment_transactions/', get_fragment_transactions),
     path('add_buy_order/', add_buy_order),
     path('add_sell_order/', add_sell_order),
-    path('get_order_info_by_user_id/', get_order_info_by_user_id)
+    path('get_order_info_by_user_id/', get_order_info_by_user_id),
+
+    path('api/makeOrder/', make_order),
+    path('api/finishedTradeList/', get_finished_trade_list),
+    path('api/stockerOrderHist/', get_stocker_order_hist),
+    path('api/pendingOrderList/', get_pending_orders),
+    path('api/allFinishedTradeList/', get_fragment_transactions),
+    path('api/login/', login),
 ]
