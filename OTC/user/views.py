@@ -6,23 +6,27 @@ from broker.broker import bb
 user_for_test = {
     'test_user': {
         'id': 1,
-        'password': '123456',
+        'password': '123',
         'type': 'company'
     },
     'test_user2': {
         'id': 2,
-        'password': '123456',
+        'password': '123',
+        'type': 'company'
+    },
+    'test_user3': {
+        'id': 3,
+        'password': "123",
         'type': 'company'
     }
 }
 
 
-def get_username_by_id(user_id):
+def get_username_by_user_id(user_id):
     for username in user_for_test:
         if user_for_test[username]['id'] == user_id:
-            user_name = username
-            break
-    return user_name
+            return username
+    return ""
 
 
 def login(request):
@@ -32,7 +36,7 @@ def login(request):
     user_type = user_info['usertype']
     ret = {
         'status': "",
-        'data':{
+        'data': {
             'userid': -1
         }
 
@@ -50,13 +54,13 @@ def login(request):
 def get_order_info_by_user_id(request):
     user_info: dict = json.loads(request.body)
     user_id = user_info['userid']
-    user_name = get_username_by_id(user_id)
+    user_name = get_username_by_user_id(user_id)
     ret = {
         'msg': 'ok',
         'data': []
     }
-    all_sell_orders = bb.get_sell_orders()
-    all_buy_orders = bb.get_buy_orders()
+    all_sell_orders = bb.get_all_sell_orders()
+    all_buy_orders = bb.get_all_buy_orders()
     for order in all_sell_orders:
         if order['seller_id'] == user_id:
             ret['data'].append({

@@ -5,6 +5,7 @@ fragment_transaction(sell_order_id, buy_order_id, qty, sold_price, sold_time)
 company(cid, name)
 """
 import time
+from broker.publicSettings import *
 
 
 class BuyOrder:
@@ -76,7 +77,7 @@ class FragmentTransaction:
         self.buy_order_id = buy_order_id
         self.qty = qty
         self.sold_price = sold_price
-        self.sold_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())  # 24小时制
+        self.sold_time = time.strftime(TIME_FORMAT, time.localtime())  # 24小时制
 
     def get_json_info(self):
         return {
@@ -99,12 +100,6 @@ class Broker:
         self.buy_order_id = {}
         self.sell_order_id = {}
 
-    def get_company_list(self):
-        ret = []
-        for c in self.company_list:
-            ret.append(c)
-        return ret
-
     def add_fragment_transaction(self, ft: FragmentTransaction):
         commodity_name = ft.commodity_name
         if self.fragment_trans.get(commodity_name, -1) == -1:
@@ -112,81 +107,38 @@ class Broker:
         else:
             self.fragment_trans[commodity_name].append(ft)
 
-    def get_buy_orders(self):
-        ret = []
-        for commodity in self.buy_orders:
-            for order in self.buy_orders[commodity]:
-                ret.append(order.get_json_info())
-        return ret
+    def get_user_id_by_buy_order_id_and_commodity_name(self, order_id, commodity_name):
+        for in_commodity_name in self.buy_orders:
+            if in_commodity_name == commodity_name:
+                for _, order in self.buy_orders[commodity_name].items():
+                    if order.order_id == order_id:
+                        return order.buyer_id
 
-    def get_sell_orders(self):
-        ret = []
-        for commodity in self.sell_orders:
-            for order in self.sell_orders[commodity]:
-                ret.append(order.get_json_info())
-        return ret
-
-    def get_fragment_transactions(self):
-        ret = []
-        for commodity in self.fragment_trans:
-            for order in self.fragment_trans[commodity]:
-                ret.append(order.get_json_info())
-        return ret
-
-    def get_name_by_id(self, id):
-        from user.views import user_for_test
-        for user in user_for_test:
-            if user_for_test[user]['id'] == id:
-                return user
-
-    def get_id_by_buy_order_id(self, order_id):
-        for commodity_name in self.buy_orders:
-            for _, order in self.buy_orders[commodity_name].items():
-                if order.order_id == order_id:
-                    return order.buyer_id
-
-    def get_id_by_sell_order_id(self, order_id):
-        for commodity_name in self.sell_orders:
-            for _, order in self.sell_orders[commodity_name].items():
-                if order.order_id == order_id:
-                    return order.seller_id
+    def get_user_id_by_sell_order_id_and_commodity_name(self, order_id, commodity_name):
+        for in_commodity_name in self.sell_orders:
+            if in_commodity_name == commodity_name:
+                for _, order in self.sell_orders[commodity_name].items():
+                    if order.order_id == order_id:
+                        return order.seller_id
 
     def get_all_fragment_transactions(self):
-        ret = []
+        tfs = []
         for commodity_name in self.fragment_trans:
             for tf in self.fragment_trans[commodity_name]:
-                info = tf.get_json_info()
-                buyer_id = self.get_id_by_buy_order_id(info['buy_id'])
-                seller_id = self.get_id_by_sell_order_id(info['sell_id'])
-                ret.append({
-                    "buyOrderId": info['buy_id'],
-                    "buyerName": self.get_name_by_id(buyer_id),
-                    "buyerId": buyer_id,
-                    "sellOrderId": info['sell_id'],
-                    "sellerName": self.get_name_by_id(seller_id),
-                    "sellerId": seller_id,
-                    "qty": info['qty'],
-                    "price": info['sold_price'],
-                    "productName": info['commodity_name'],
-                    "time": info['sold_time'],
-                })
-        return ret
+                tfs.append(tf)
+        return tfs
 
-    def get_fragment_transactions_by_id(self, id):
+    def get_fragment_transactions_by_user_id(self, user_id):
         sell_orders = []
         buy_orders = []
         for commodity_name in self.buy_orders:
             for _, order in self.buy_orders[commodity_name].items():
-                if order.buyer_id == id:
+                if order.buyer_id == user_id:
                     buy_orders.append(order)
         for commodity_name in self.sell_orders:
             for _, order in self.sell_orders[commodity_name].items():
-                if order.seller_id == id:
+                if order.seller_id == user_id:
                     sell_orders.append(order)
-        if len(sell_orders) > 0:
-            print(sell_orders[0].get_json_info())
-        if len(buy_orders) > 0:
-            print(buy_orders[0].get_json_info())
         tfs = []
         for commodity_name in self.fragment_trans:
             for tf in self.fragment_trans[commodity_name]:
@@ -196,54 +148,20 @@ class Broker:
                 for order in buy_orders:
                     if tf.buy_order_id == order.order_id:
                         tfs.append(tf)
-        print(len(tfs))
-        ret = []
-        for tf in tfs:
-            info = tf.get_json_info()
-            buyer_id = self.get_id_by_buy_order_id(info['buy_id'])
-            seller_id = self.get_id_by_sell_order_id(info['sell_id'])
-            ret.append({
-                "buyOrderId": info['buy_id'],
-                "buyerName": self.get_name_by_id(buyer_id),
-                "buyerId": buyer_id,
-                "sellOrderId": info['sell_id'],
-                "sellerName": self.get_name_by_id(seller_id),
-                "sellerId": seller_id,
-                "qty": info['qty'],
-                "price": info['sold_price'],
-                "productName": info['commodity_name'],
-                "time": info['sold_time'],
-            })
-        return ret
+        return tfs
 
-    def get_all_orders(self):
+    def get_all_buy_orders(self):
         ret = []
         for commodity in self.buy_orders:
             for _, order in self.buy_orders[commodity].items():
-                ret.append({
-                    "company_id": order.buyer_id,
-                    "orderId": order.order_id,
-                    "orderDst": 'buy',
-                    "orderType": order.order_type,
-                    "qty": order.buy_vol,
-                    "price": order.price ,
-                    "productName": order.commodity_name,
-                    "orderIsDone": order.is_done,
-                    "originVol": order.origin_vol
-                })
+                ret.append(order)
+        return ret
+
+    def get_all_sell_orders(self):
+        ret = []
         for commodity in self.sell_orders:
             for _, order in self.sell_orders[commodity].items():
-                ret.append({
-                    "company_id": order.seller_id,
-                    "orderId": order.order_id,
-                    "orderDst": 'sell',
-                    "orderType": order.order_type,
-                    "qty": order.sell_vol,
-                    "price": order.price,
-                    "productName": order.commodity_name,
-                    "orderIsDone": order.is_done,
-                    "originVol": order.origin_vol
-                })
+                ret.append(order)
         return ret
 
 

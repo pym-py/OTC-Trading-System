@@ -26,6 +26,8 @@ from broker.views import (test,
                           get_finished_trade_list,
                           get_stocker_order_hist,
                           get_pending_orders,
+                          get_market_depth_by_commodity_name,
+                          get_price_trend
                           )
 from user.views import get_order_info_by_user_id, login
 
@@ -44,5 +46,7 @@ urlpatterns = [
     path('api/stockerOrderHist/', get_stocker_order_hist),
     path('api/pendingOrderList/', get_pending_orders),
     path('api/allFinishedTradeList/', get_fragment_transactions),
+    path('api/getMarketDepthByName/', get_market_depth_by_commodity_name),
+    path('api/getPriceTrend/', get_price_trend),
     path('api/login/', login),
 ]
