@@ -59,9 +59,7 @@ def add_buy_order(broker: Broker,
     elif order_type == 'limit':
         deal_new_buy_limit_order(broker, buy_order)
     elif order_type == 'stop':
-        pass
-    elif order_type == 'cancel':
-        pass
+        deal_new_buy_stop_order(broker, buy_order)
 
 
 def add_sell_order(broker: Broker,
@@ -78,9 +76,23 @@ def add_sell_order(broker: Broker,
     elif order_type == 'limit':
         deal_new_sell_limit_order(broker, sell_order)
     elif order_type == 'stop':
-        pass
-    elif order_type == 'cancel':
-        pass
+        deal_new_sell_stop_order(broker, sell_order)
+
+
+def deal_new_buy_stop_order(broker, order: BuyOrder):
+    pass
+
+
+def deal_new_sell_stop_order(broker, order: SellOrder):
+    pass
+
+
+def deal_new_buy_cancel_order(broker, commodity_name, order_id):
+    pass
+
+
+def deal_new_sell_cancel_order(broker, commodity_name, order_id):
+    pass
 
 
 def deal_new_buy_market_order(broker, order: BuyOrder):

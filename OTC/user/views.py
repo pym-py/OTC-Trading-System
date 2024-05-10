@@ -41,10 +41,14 @@ def login(request):
         }
 
     }
-    if user_for_test.get(username, {}) == {}:
-        ret['status'] = '用户不存在'
-    elif user_for_test.get(username)['password'] != password:
-        ret['status'] = '密码错误'
+    if user_type == 'company':
+        if user_for_test.get(username, {}) == {}:
+            ret['status'] = '用户不存在'
+        elif user_for_test.get(username)['password'] != password:
+            ret['status'] = '密码错误'
+        else:
+            ret['status'] = 'ok'
+            ret['data']['userid'] = user_for_test.get(username)['id']
     else:
         ret['status'] = 'ok'
         ret['data']['userid'] = user_for_test.get(username)['id']

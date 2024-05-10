@@ -9,6 +9,8 @@ from broker.publicSettings import *
 
 
 def test(request):
+    from celery_app.tasks import ce_test
+    ce_test.delay()
     return JsonResponse({
         'name': 'OTC'
     })
@@ -96,6 +98,34 @@ def make_order(request):
     return JsonResponse({
         "msg": "ok"
     }, safe=False)
+
+
+def cancel_order(request):
+    order_info: dict = json.loads(request.body)
+    is_buy_order = order_info['orderDst'] == 'buy'
+    company_id = order_info['userid']
+    commodity_name = order_info['productName']
+    order_id = order_info['orderId']
+    if is_buy_order:
+        orderProcessor.deal_new_buy_cancel_order(bb, commodity_name, order_id)
+    else:
+        orderProcessor.deal_new_sell_cancel_order(bb, commodity_name, order_id)
+    return JsonResponse({
+            "msg": "ok"
+    }, safe=False)
+
+
+def get_product_unit(request):
+    info: dict = json.loads(request.body)
+    commodity_name = info['name']
+    ret = {
+        'msg': 'ok',
+        'data': {
+            'qtyUnit': commodity_units.get(commodity_name, "0")['vol'],
+            'priceUnit': commodity_units.get(commodity_name, "0")['price']
+        }
+    }
+    return JsonResponse(ret, safe=False)
 
 
 def get_finished_trade_list(request):
