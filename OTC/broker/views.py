@@ -115,16 +115,30 @@ def cancel_order(request):
     }, safe=False)
 
 
+def get_product_list(request):
+    ret = {
+        'msg': 'ok',
+        'data': []
+    }
+    for product in commodity_names:
+        ret['data'].append({
+            'productName': product
+        })
+    print(ret)
+    return JsonResponse(ret, safe=False)
+
+
 def get_product_unit(request):
     info: dict = json.loads(request.body)
     commodity_name = info['name']
     ret = {
         'msg': 'ok',
         'data': {
-            'qtyUnit': commodity_units.get(commodity_name, "0")['vol'],
-            'priceUnit': commodity_units.get(commodity_name, "0")['price']
+            'qtyUnit': commodity_units[commodity_name]['vol'],
+            'priceUnit': commodity_units[commodity_name]['price'],
         }
     }
+    print(ret)
     return JsonResponse(ret, safe=False)
 
 
