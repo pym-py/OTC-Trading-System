@@ -51,7 +51,7 @@ def login(request):
             ret['data']['userid'] = user_for_test.get(username)['id']
     else:
         ret['status'] = 'ok'
-        ret['data']['userid'] = user_for_test.get(username)['id']
+        ret['data']['userid'] = 1
     return JsonResponse(ret)
 
 

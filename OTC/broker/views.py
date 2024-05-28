@@ -20,7 +20,7 @@ def get_buy_orders(request):
     return JsonResponse(bb.get_all_buy_orders(), safe=False)
 
 
-def get_sell_orders(requset):
+def get_sell_orders(request):
     return JsonResponse(bb.get_all_sell_orders(), safe=False)
 
 
@@ -231,7 +231,7 @@ def get_pending_orders(request):
     for order in bb.get_all_sell_orders():
         ret['data'].append({
             "stockerId": order.seller_id,
-            "stockerName": get_username_by_user_id(order.buyer_id),
+            "stockerName": get_username_by_user_id(order.seller_id),
             "orderId": order.order_id,
             "orderDst": 'sell',
             "orderType": order.order_type,
