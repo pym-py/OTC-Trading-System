@@ -5,7 +5,7 @@ import time
 
 url = 'http://127.0.0.1:8050/api/makeOrder/'
 
-for i in range(1000):
+for i in range(100):
     body = {
         'orderType': 'limit',
         'orderDst': 'buy',
@@ -16,7 +16,7 @@ for i in range(1000):
     }
     requests.post(url, data=json.dumps(body))
 
-for i in range(1000):
+for i in range(100):
     body = {
         'orderType': 'limit',
         'orderDst': 'sell',
@@ -26,6 +26,30 @@ for i in range(1000):
         'productName': 'gold'
     }
     requests.post(url, data=json.dumps(body))
+
+for i in range(100):
+    body = {
+        'orderType': 'limit',
+        'orderDst': 'buy',
+        'qty': random.randint(80, 200),
+        'userid': 1,
+        'price': random.randint(450, 500),
+        'productName': 'oil'
+    }
+    requests.post(url, data=json.dumps(body))
+
+for i in range(100):
+    body = {
+        'orderType': 'limit',
+        'orderDst': 'sell',
+        'qty': random.randint(80, 200),
+        'userid': 2,
+        'price': random.randint(500, 550),
+        'productName': 'oil'
+    }
+    requests.post(url, data=json.dumps(body))
+
+
 
 # for i in range(1000):
 #     body = {

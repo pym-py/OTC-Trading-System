@@ -25,6 +25,8 @@ class BuyOrder:
         self.order_type = order_type
         self.is_done = is_done
         self.origin_vol = buy_vol
+        self.stop_price = price                 # stop order触发交易后金额会变成infinity，所以这里保存原始价格
+        self.origin_type = self.order_type      # cancel订单后，type会变成cancel，这里保存原始类型
 
     def get_json_info(self):
         return {
@@ -56,6 +58,8 @@ class SellOrder:
         self.order_type = order_type
         self.is_done = is_done
         self.origin_vol = sell_vol
+        self.stop_price = price
+        self.origin_type = self.order_type
 
     def get_json_info(self):
         return {

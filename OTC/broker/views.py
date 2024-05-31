@@ -177,13 +177,16 @@ def get_stocker_order_hist(request):
     for commodity in bb.buy_orders:
         for _, order in bb.buy_orders[commodity].items():
             if order.buyer_id == user_id:
+                price = order.price if order.order_type != 'market' else 0
+                if order.order_type == 'stop':
+                    price = order.stop_price
                 ret.append({
                     "company_id": order.buyer_id,
                     "orderId": order.order_id,
                     "orderDst": 'buy',
                     "orderType": order.order_type,
                     "qty": order.buy_vol,
-                    "price": order.price if order.order_type != 'market' else 0,
+                    "price": price,
                     "productName": order.commodity_name,
                     "orderIsDone": order.is_done,
                     "originVol": order.origin_vol
@@ -191,13 +194,16 @@ def get_stocker_order_hist(request):
     for commodity in bb.sell_orders:
         for _, order in bb.sell_orders[commodity].items():
             if order.seller_id == user_id:
+                price = order.price if order.order_type != 'market' else 0
+                if order.order_type == 'stop':
+                    price = order.stop_price
                 ret.append({
                     "company_id": order.seller_id,
                     "orderId": order.order_id,
                     "orderDst": 'sell',
                     "orderType": order.order_type,
                     "qty": order.sell_vol,
-                    "price": order.price if order.order_type != 'market' else 0,
+                    "price": price,
                     "productName": order.commodity_name,
                     "orderIsDone": order.is_done,
                     "originVol": order.origin_vol
@@ -251,10 +257,10 @@ def get_market_depth_by_commodity_name(request):
     buy_orders = []
     sell_orders = []
     for order in bb.get_all_buy_orders():
-        if order.commodity_name == commodity_name and order.buy_vol != 0:
+        if order.commodity_name == commodity_name and order.buy_vol != 0 and order.order_type != 'cancel':
             buy_orders.append(order)
     for order in bb.get_all_sell_orders():
-        if order.commodity_name == commodity_name and order.sell_vol != 0:
+        if order.commodity_name == commodity_name and order.sell_vol != 0 and order.order_type != 'cancel':
             sell_orders.append(order)
 
     buy_depth = {}

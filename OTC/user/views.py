@@ -41,7 +41,7 @@ def login(request):
         }
 
     }
-    if user_type == 'company':
+    if user_type == 'stocker':
         if user_for_test.get(username, {}) == {}:
             ret['status'] = '用户不存在'
         elif user_for_test.get(username)['password'] != password:

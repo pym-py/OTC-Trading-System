@@ -7,7 +7,7 @@ commodity_names = ['gold', 'oil']
 commodity_units = {
     'gold': {
         'price': '$',
-        'vol': 'kg'
+        'vol': 'g'
     },
     'oil': {
         'price': '$',

@@ -3,6 +3,11 @@ from celery import shared_task
 import time
 from broker.models import *
 
+'''
+1. 启动redis: redis-server
+2. 启动celery: celery -A OTC worker -l info
+'''
+
 
 @shared_task
 def ce_test():
